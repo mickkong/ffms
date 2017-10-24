@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.TradeDao">
+	<resultMap type="Trade" id="TradeResult">
+		<result property="id" column="id" />
+		<result property="userid" column="userid" />
+		<result property="sharesid" column="sharesid" />
+        <result property="price" column="price"/>
+        <result property="number" column="number"/>
+		<result property="money" column="money" />
+		<result property="dataid" column="dataid" />
+		<result property="content" column="content" />
+		<result property="time" column="time" />
+		<result property="createtime" column="createtime" />
+		<result property="updatetime" column="updatetime" />
+	</resultMap>
+	<select id="findTrade" parameterType="Map" resultMap="TradeResult">
+		select * from t_trade a,t_datadic b,t_user c,t_shares d,t_user_role f
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.sharesid=d.id and a.userid=f.userid
+			<if test="sharesname!=null and sharesname!='' ">
+				and d.sharesname like #{sharesname}
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				and a.dataid=#{dataid}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.time&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.time&lt;=#{endtime}
+			</if>
+			<if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+		</where>
+		<if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+
+	<select id="getTotalTrade" parameterType="Map" resultType="Long">
+		select count(*) from t_trade a,t_datadic b,t_user c,t_shares d,t_user_role f
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.sharesid=d.id and a.userid=f.userid
+			<if test="dataid!=null and dataid!='' ">
+				and a.dataid like #{dataid}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.time&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.time&lt;=#{endtime}
+			</if>
+			<if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+		</where>
+	</select>
+
+	<insert id="addTrade" parameterType="Trade">
+		insert into t_trade values(null,#{userid},#{sharesid},#{price},#{number},#{money},#{dataid},#{content},#{time},#{createtime},null);
+	</insert>
+
+	<update id="updateTrade" parameterType="Trade">
+		update t_trade
+		<set>
+		    <if test="userid!=null and userid!='' ">
+				userid=#{userid},
+			</if>
+			<if test="sharesid!=null and sharesid!='' ">
+				sharesid=#{sharesid},
+			</if>
+			<if test="price!=null and price!='' ">
+				price=#{price},
+			</if>
+			<if test="number!=null and number!='' ">
+				number=#{number},
+			</if>
+			<if test="money!=null and money!='' ">
+				money=#{money},
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				dataid=#{dataid},
+			</if>
+			<if test="content!=null and content!='' ">
+				content=#{content},
+			</if>
+			<if test="time!=null and time!='' ">
+				time=#{time},
+			</if>
+			updatetime=#{updatetime}
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deleteTrade" parameterType="Integer">
+		delete from t_trade where id=#{id};
+	</delete>
+</mapper>

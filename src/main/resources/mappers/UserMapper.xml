@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.UserDao">
+	<resultMap type="User" id="UserResult">
+		<result property="id" column="id"/>
+		<result property="username" column="username"/>
+		<result property="password" column="password"/>
+		<result property="truename" column="truename"/>
+		<result property="email" column="email"/>
+		<result property="phone" column="phone"/>
+		<result property="address" column="address"/>
+		<result property="sex" column="sex"/>
+		<result property="age" column="age"/>
+		<result property="appellation" column="appellation"/>
+		<result property="salary" column="salary"/>
+		<result property="card" column="card"/>
+		<result property="isvalid" column="isvalid"/>
+		<result property="createtime" column="createtime"/>
+		<result property="updatetime" column="updatetime"/>
+		<result property="rolename" column="rolename"/>
+		<collection property="roleIDsList"  column="id"  ofType="java.util.Map" javaType="java.util.ArrayList" select="selectRoleids" /> 
+	</resultMap>
+	
+	<select id="selectRoleids" parameterType="int" resultType="java.util.Map">
+	   select a.roleid,b.rolename from t_user_role a,t_role b where a.roleid=b.id and a.userid=#{id}
+	</select>
+	
+	<select id="loginUsername" parameterType="User" resultMap="UserResult">
+	    select * from t_user where isvalid=1 and username=#{username}
+	</select>
+	
+	<select id="loginPassword" parameterType="User" resultMap="UserResult">
+	    select * from t_user where isvalid=1 and username=#{username} and password=#{password}
+	</select>
+	
+	<select id="loginRolename" parameterType="User" resultMap="UserResult">
+		select * from t_user a,t_user_role b where a.isvalid=1 and a.id=b.userid and a.username=#{username} and a.password=#{password} and b.roleid=#{roleid}
+	</select>
+	
+	<select id="getUserById" parameterType="Integer" resultMap="UserResult">
+	    select * from t_user a,t_user_role b where a.id=#{id} and a.isvalid=1 and b.userid=a.id
+	</select>
+	
+	<select id="getAllUser" parameterType="Map" resultMap="UserResult">
+	    select id,username from t_user
+	    <where>
+	        isvalid=1
+	        <if test="userid!=null and roleid!=1">
+				and id=#{userid}
+			</if>
+	    </where>
+	</select>
+	
+	<select id="findUser" parameterType="Map" resultMap="UserResult">
+		select * from t_user a,t_user_role b,t_role c
+		<where>
+		    a.isvalid=1 and a.id=b.userid and c.id=b.roleid
+		    <if test="username!=null and username!='' ">
+				and a.username like #{username}
+			</if>
+			<if test="truename!=null and truename!='' ">
+				and a.truename like #{truename}
+			</if>
+			<if test="appellation!=null and appellation!='' ">
+				and a.appellation like #{appellation}
+			</if>
+			<if test="sex!=null and sex!='' ">
+				and a.sex = #{sex}
+			</if>
+			<if test="roleid!=null and roleid!='' ">
+				and b.roleid = #{roleid}
+			</if>
+		</where>
+		<if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+	
+	<select id="getTotalUser" parameterType="Map" resultType="Long">
+		select count(*) from t_user a,t_user_role b,t_role c
+		<where>
+		    a.isvalid=1 and a.id=b.userid and c.id=b.roleid
+		    <if test="username!=null and username!='' ">
+				and a.username like #{username}
+			</if>
+			<if test="roleid!=null and roleid!='' ">
+				and b.roleid = #{roleid}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getUserIsExists" parameterType="User" resultType="Long">
+		select count(1) from t_user
+		<where>
+		    isvalid=1
+		    <if test="username!=null and username!='' ">
+				and username = #{username}
+			</if>
+			<if test="id!=null">
+				and id!=#{id}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addUser" parameterType="User">
+		insert into t_user values(null,#{username},#{password},#{truename},#{email},#{phone},#{address},#{sex},#{age},#{appellation},#{salary},#{card},1,#{createtime},null);
+	</insert>
+	
+	<insert id="addUserRole" parameterType="User">
+		insert into t_user_role (select null,a.id,b.id from t_user a,t_role b where a.username=#{username} and b.id=#{roleid});
+	</insert>
+	
+	<insert id="addSign" parameterType="User">
+		insert into t_user values(null,#{username},#{password},null,null,null,null,null,null,null,null,null,1,#{createtime},null);
+	</insert>
+	
+	<update id="updateUser" parameterType="User" >
+		update t_user a,t_user_role b
+		<set>
+			<if test="username!=null and username!='' ">
+				a.username=#{username},
+			</if>
+			<if test="password!=null and password!='' ">
+				a.password=#{password},
+			</if>
+			<if test="truename!=null and truename!='' ">
+				a.truename=#{truename},
+			</if>
+			<if test="email!=null and email!='' ">
+				a.email=#{email},
+			</if>
+			<if test="phone!=null and phone!='' ">
+				a.phone=#{phone},
+			</if>
+			<if test="address!=null and address!='' ">
+				a.address=#{address},
+			</if>
+			<if test="sex!=null and sex!='' ">
+				a.sex=#{sex},
+			</if>
+			<if test="age!=null and age!='' ">
+				a.age=#{age},
+			</if>
+			<if test="appellation!=null and appellation!='' ">
+				a.appellation=#{appellation},
+			</if>
+			<if test="salary!=null and salary!='' ">
+				a.salary=#{salary},
+			</if>
+			<if test="card!=null and card!='' ">
+				a.card=#{card},
+			</if>
+			<if test="roleid!=null and roleid!='' ">
+				b.roleid=#{roleid},
+			</if>
+			a.updatetime=#{updatetime}
+		</set>
+		where a.isvalid=1 and a.id=#{id} and b.userid=#{id}
+	</update>
+
+	<delete id="deleteUser" parameterType="Integer">
+	    update t_user set isvalid=0 where id=#{id};
+	</delete>
+	
+</mapper> 

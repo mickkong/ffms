@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.RoleDao">
+    <resultMap type="Role" id="RoleResult">
+		<result property="id" column="id"/>
+		<result property="rolename" column="rolename"/>
+	</resultMap>
+	
+    <select id="getRoles" resultType="Role">
+ 		select * from t_role
+ 	</select>
+ 	
+    <select id="findRole" parameterType="Map" resultMap="RoleResult">
+		select * from t_role
+		<where>
+		    <if test="rolename!=null and rolename!='' ">
+				rolename like #{rolename}
+			</if>
+		</where>
+		<if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+	
+    <select id="getTotalRole" parameterType="Map" resultType="Long">
+		select count(*) from t_role
+		<where>
+		    <if test="rolename!=null and rolename!='' ">
+				rolename like #{rolename}
+			</if>
+		</where>
+	</select>
+	
+    <insert id="addRole" parameterType="Role">
+		insert into t_role values(null,#{rolename});
+	</insert>
+	
+    <update id="updateRole" parameterType="Role" >
+		update t_role
+		<set>
+			<if test="rolename!=null and rolename!='' ">
+				rolename=#{rolename}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+    <delete id="deleteRole" parameterType="Integer">
+	    delete from t_role where id=#{id};
+	</delete>
+
+</mapper> 	

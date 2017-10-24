@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.DatabaseDao">
+	<resultMap type="Database" id="DatabaseResult">
+		<result property="id" column="id"/>
+		<result property="userid" column="userid"/>
+		<result property="time" column="time"/>
+		<result property="location" column="location"/>
+		<result property="dataid" column="dataid"/>
+	</resultMap>
+	
+	<select id="findDataBack" parameterType="Map" resultMap="DatabaseResult">
+		select * from t_database a,t_user b,t_datadic c
+		<where>
+		    c.id=#{dataid} and a.dataid=c.id and a.userid=b.id
+		    <if test="username!=null and username!='' ">
+				and b.username like #{username}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.time&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.time&lt;=#{endtime}
+			</if>
+		</where>
+		<if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+	
+	<select id="getDataBackTotal" parameterType="Map" resultType="Long">
+		select count(*) from t_database a,t_user b,t_datadic c
+		<where>
+		    c.id=#{dataid} and a.dataid=c.id and a.userid=b.id
+		    <if test="username!=null and username!='' ">
+				and b.username like #{username}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.time&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.time&lt;=#{endtime}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="addDatabase" parameterType="Database">
+		insert into t_database values(null,#{userid},#{filename},#{time},#{location},#{dataid});
+	</insert>
+	
+	<delete id="deleteDatabase" parameterType="Integer">
+	    delete from t_database where id=#{id};
+	</delete>
+	
+	<update id="truncateTable">
+	    truncate table ${tablename}
+	</update>
+	
+	<delete id="deleteOrderdata">
+	    delete from ${tablename} where id&gt;=${startid} and id&lt;=${endid}
+	</delete>
+	
+</mapper>

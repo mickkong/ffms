@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.IncomeDao">
+	<resultMap type="Income" id="IncomeResult">
+		<result property="id" column="id" />
+		<result property="userid" column="userid" />
+		<result property="incomer" column="incomer" />
+		<result property="source" column="source" />
+		<result property="money" column="money" />
+		<result property="dataid" column="dataid" />
+		<result property="content" column="content" />
+		<result property="incometime" column="incometime" />
+		<result property="createtime" column="createtime" />
+		<result property="updatetime" column="updatetime" />
+	</resultMap>
+	<select id="findIncome" parameterType="Map" resultMap="IncomeResult">
+		select * from t_income a,t_datadic b,t_user c,t_user_role d
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.userid=d.userid
+			<if test="incomer!=null and incomer!='' ">
+				and a.incomer like #{incomer}
+			</if>
+			<if test="source!=null and source!='' ">
+				and a.source like #{source}
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				and a.dataid like #{dataid}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.incometime&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.incometime&lt;=#{endtime}
+			</if>
+			<if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+		</where>
+		<if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+
+	<select id="getTotalIncome" parameterType="Map" resultType="Long">
+		select count(*) from t_income a,t_datadic b,t_user c,t_user_role d
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.userid=d.userid
+			<if test="incomer!=null and incomer!='' ">
+				and a.incomer like #{incomer}
+			</if>
+			<if test="source!=null and source!='' ">
+				and a.source like #{source}
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				and a.dataid like #{dataid}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.incometime&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.incometime&lt;=#{endtime}
+			</if>
+			<if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+		</where>
+	</select>
+
+	<insert id="addIncome" parameterType="Income">
+		insert into t_income values(null,#{userid},#{incomer},#{source},#{money},#{dataid},#{content},#{incometime},#{createtime},null);
+	</insert>
+
+	<update id="updateIncome" parameterType="Income">
+		update t_income
+		<set>
+			<if test="incomer!=null and incomer!='' ">
+				incomer=#{incomer},
+			</if>
+			<if test="source!=null and source!='' ">
+				source=#{source},
+			</if>
+			<if test="money!=null and money!='' ">
+				money=#{money},
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				dataid=#{dataid},
+			</if>
+			<if test="content!=null and content!='' ">
+				content=#{content},
+			</if>
+			<if test="incometime!=null and incometime!='' ">
+				incometime=#{incometime},
+			</if>
+			updatetime=#{updatetime}
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deleteIncome" parameterType="Integer">
+		delete from t_income where id=#{id};
+	</delete>
+	
+	<select id="getIncomeLine" parameterType="Map" resultMap="IncomeResult">
+		select * from t_income a,t_datadic b,t_user c,t_user_role d
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.userid=d.userid
+			<if test="incomer!=null and incomer!='' ">
+				and a.incomer like #{incomer}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.incometime&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.incometime&lt;=#{endtime}
+			</if>
+			<if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+			order by a.incometime
+		</where>
+	</select>
+	
+	<select id="getIncomer" resultMap="IncomeResult">
+		select distinct(incomer) from t_income
+	</select>
+</mapper>

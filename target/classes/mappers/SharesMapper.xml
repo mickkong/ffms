@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.SharesDao">
+   <resultMap type="Shares" id="SharesResult">
+      <result property="id" column="id"/>
+      <result property="userid" column="userid"/>
+      <result property="securityid" column="securityid"/>
+      <result property="sharesname" column="sharesname"/>
+      <result property="holder" column="holder"/>
+      <result property="createtime" column="createtime"/>
+      <result property="updatetime" column="updatetime"/>
+   </resultMap>
+   <select id="findShares" parameterType="Map" resultMap="SharesResult">
+        select * from t_shares a,t_security b ,t_user c,t_user_role d
+        <where>
+           a.securityid=b.id and a.userid=c.id and a.userid=d.userid
+           <if test="securityname!=null and securityname!='' ">
+               and b.securityname like #{securityname}
+           </if>
+           <if test="sharesname!=null and sharesname!='' ">
+               and a.sharesname like #{sharesname}
+           </if>
+           <if test="holder!=null and holder!='' ">
+               and a.holder like #{holder}
+           </if>
+           <if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+        </where>
+        <if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+   </select>
+   
+   <select id="getTotalShares" parameterType="Map" resultType="Long">
+		 select  count(*) from t_shares a,t_security b ,t_user c,t_user_role d
+        <where>
+           a.securityid=b.id and a.userid=c.id and a.userid=d.userid
+          <if test="securityname!=null and securityname!='' ">
+               and b.securityname like #{securityname}
+           </if>
+           <if test="sharesname!=null and sharesname!='' ">
+               and a.sharesname like #{sharesname}
+           </if>
+           <if test="holder!=null and holder!='' ">
+               and a.holder like #{holder}
+           </if>
+           <if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+        </where>
+	</select>
+	
+   <insert id="addShares" parameterType="Shares">
+		insert into t_shares values(null,#{userid},#{securityid},#{sharesname},#{holder},#{createtime},null);
+	</insert>
+	
+	<update id="updateShares" parameterType="Shares">
+		update t_shares
+		<set>
+			<if test="userid!=null and userid!='' ">
+				userid=#{userid},
+			</if>
+			<if test="securityid!=null and securityid!='' ">
+				securityid=#{securityid},
+			</if>
+			<if test="sharesname!=null and sharesname!='' ">
+				sharesname=#{sharesname},
+			</if>
+			<if test="holder!=null and holder!='' ">
+				holder=#{holder},
+			</if>
+			updatetime=#{updatetime}
+		</set>
+		where id=#{id}
+	</update>
+	
+   <delete id="deleteShares" parameterType="Integer">
+		delete from t_shares where id=#{id};
+	</delete>
+	<select id="getSharesName" resultType="Shares">
+ 		select id,sharesname from t_shares
+ 	</select>
+</mapper>

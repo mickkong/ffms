@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.finance.dao.PayDao">
+	<resultMap type="Pay" id="PayResult">
+		<result property="id" column="id" />
+		<result property="userid" column="userid" />
+		<result property="payer" column="payer" />
+		<result property="tword" column="tword" />
+		<result property="money" column="money" />
+		<result property="dataid" column="dataid" />
+		<result property="content" column="content" />
+		<result property="paytime" column="paytime" />
+		<result property="createtime" column="createtime" />
+		<result property="updatetime" column="updatetime" />
+	</resultMap>
+	<select id="findPay" parameterType="Map" resultMap="PayResult">
+		select * from t_pay a,t_datadic b,t_user c,t_user_role d
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.userid=d.userid
+			<if test="payer!=null and payer!='' ">
+				and a.payer like #{payer}
+			</if>
+			<if test="tword!=null and tword!='' ">
+				and a.tword like #{tword}
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				and a.dataid like #{dataid}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.paytime&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.paytime&lt;=#{endtime}
+			</if>
+			<if test="roleid!=1">
+				and a.userid=#{userid}
+			</if>
+		</where>
+		<if test="start!=null and size!=null">
+			limit #{start},#{size}
+		</if>
+	</select>
+
+	<select id="getTotalPay" parameterType="Map" resultType="Long">
+		select count(*) from t_pay a,t_datadic b,t_user c,t_user_role d
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.userid=d.userid
+			<if test="payer!=null and payer!='' ">
+				and a.payer like #{payer}
+			</if>
+			<if test="tword!=null and tword!='' ">
+				and a.tword like #{tword}
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				and a.dataid like #{dataid}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.paytime&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.paytime&lt;=#{endtime}
+			</if>
+			<if test="roleid!=1">
+				and a.userid=#{userid}
+			</if>
+		</where>
+	</select>
+
+	<insert id="addPay" parameterType="Pay">
+		insert into t_pay values(null,#{userid},#{payer},#{tword},#{money},#{dataid},#{content},#{paytime},#{createtime},null);
+	</insert>
+
+	<update id="updatePay" parameterType="Pay">
+		update t_pay
+		<set>
+			<if test="payer!=null and payer!='' ">
+				payer=#{payer},
+			</if>
+			<if test="tword!=null and tword!='' ">
+				tword=#{tword},
+			</if>
+			<if test="money!=null and money!='' ">
+				money=#{money},
+			</if>
+			<if test="dataid!=null and dataid!='' ">
+				dataid=#{dataid},
+			</if>
+			<if test="content!=null and content!='' ">
+				content=#{content},
+			</if>
+			<if test="paytime!=null and paytime!='' ">
+				paytime=#{paytime},
+			</if>
+			updatetime=#{updatetime}
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="deletePay" parameterType="Integer">
+		delete from t_pay where id=#{id};
+	</delete>
+	
+	<select id="getPayLine" parameterType="Map" resultMap="PayResult">
+		select * from t_pay a,t_datadic b,t_user c,t_user_role d
+		<where>
+			a.dataid=b.id and a.userid=c.id and a.userid=d.userid
+			<if test="payer!=null and payer!='' ">
+				and a.payer like #{payer}
+			</if>
+			<if test="starttime!=null and starttime!='' ">
+				and a.paytime&gt;=#{starttime}
+			</if>
+			<if test="endtime!=null and endtime!='' ">
+				and a.paytime&lt;=#{endtime}
+			</if>
+			<if test="userid!=null and roleid!=1">
+				and a.userid=#{userid}
+			</if>
+			order by a.paytime
+		</where>
+	</select>
+	
+	<select id="getPayer" resultMap="PayResult">
+		select distinct(payer) from t_pay
+	</select>
+</mapper>
